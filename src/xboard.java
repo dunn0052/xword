@@ -5,7 +5,7 @@ import java.util.Random;
 import java.lang.Math;
 import java.util.ArrayList;
 import java.util.List;
-//import java.util.Regex;
+import java.util.regex.*;
 
 
 class Xboard{
@@ -22,34 +22,8 @@ class Xboard{
   private int size;
   private int numberOfWords = 0;
   private Random generator;
-  private int[] numbers;
-  //hold words
-  private String[] down;
-  private String[] across;
+  private List<IntPair> numbers = new ArrayList<IntPair>();
 
-
-// individual tiles
-  private class Tile{
-    char letter;
-    int down;
-    int across;
-    int xcoord;
-    int ycoord;
-
-    //constructor
-    private Tile(char letter, int x, int y, int down, int across){
-      this.letter = letter;
-      this.across =  across;
-      this.down = down;
-      this.xcoord = x;
-      this.ycoord = y;
-    }
-
-    //manually put in character
-    public void put(char letter) {
-      this.letter =  letter;
-    }
-  }
 
 // board constructor
   public Xboard(int size){
@@ -86,13 +60,17 @@ public void addNumbers(){
       if(board[i][j] == null){
         if(i == 0 || board[i -1][j].letter == BLANK) {
           //down case
+          IntPair pair = new IntPair(i, j);
           wordCount++;
           board[i][j] = new Tile(SPACE, i, j, wordCount, 0);
+          this.numbers.add(pair);
         }
         else if(j == 0 || board[i][j-1].letter == BLANK){
           //across case
+        IntPair pair = new IntPair(i, j);
           wordCount++;
           board[i][j] = new Tile(SPACE, i, j, 0, wordCount);
+          this.numbers.add(pair);
         }
         else{
           //open space
@@ -108,6 +86,15 @@ public void addWord(String[] words, int run, String word){
   words[run-1] = word;
 }
 
+public void putWord(String word, int run) {
+	for (int index = 0; index < word.length(); index++){
+	    char c = word.charAt(index);        
+	    int i = this.numbers.get(run-1).x;
+	    int j = this.numbers.get(run-1).y;
+	    this.board[i+index][j].put(c);
+	}
+}
+
 // test set up
   public void init(){
     addBlanks();
@@ -118,14 +105,15 @@ public void addWord(String[] words, int run, String word){
   public void showBoard(){
     for(int i = 0; i < this.size; i++){
       for(int j = 0; j < this.size; j++){
-        if(board[i][j].across > 0){
-          System.out.format("%-2dA", board[i][j].across);
+    	Tile t = board[i][j];
+        if(t.across > 0 && (t.letter != BLANK || t.letter != SPACE)){
+          System.out.format("%-2dA", t.across);
         }
-        else if(board[i][j].down > 0){
-          System.out.format("%-2dD", board[i][j].down);
+        else if(t.down > 0 && (t.letter != BLANK || t.letter != SPACE)){
+          System.out.format("%-2dD", t.down);
         }
         else{
-          System.out.format("%-3c", board[i][j].letter);
+          System.out.format("%-3c", t.letter);
         }
       }
       System.out.println("");
@@ -138,12 +126,13 @@ public void addWord(String[] words, int run, String word){
 
 
 class Test{
-
+	private static final int BOARDSIZE = 15;
   public static void main(String[] args){
 	  //from https://raw.githubusercontent.com/eneko/data-repository/master/data/words.txt
-    //List<String> dict = CSVReader.CSVList("./csv/words_alpha.csv");
-    Xboard test = new Xboard(15);
+    List<String> dict = CSVReader.CSVList("./csv/words_alpha.csv");
+    Xboard test = new Xboard(BOARDSIZE);
     test.init();
+    test.putWord("Kevin", 1);
     test.showBoard();
   }
 }
