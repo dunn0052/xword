@@ -22,7 +22,8 @@ class Xboard{
   private int size;
   private int numberOfWords = 0;
   private Random generator;
-  private List<IntPair> numbers = new ArrayList<IntPair>();
+  private List<IntPair> downWords = new ArrayList<IntPair>();
+  private List<IntPair> acrossWords = new ArrayList<IntPair>();
 
 
 // board constructor
@@ -44,54 +45,69 @@ public void addBlanks(){
       chance = Math.abs(this.generator.nextInt()%100);
       if(chance < BLANKPERCENT){
         // diagonalize blank spaces
-        board[i][j+i] = new Tile(BLANK, i, j+i, 0, 0);
-        board[j+i][i] = new Tile(BLANK, j+i, i, 0, 0);
+        board[i][j+i] = new Tile(BLANK, 0, 0);
+        board[j+i][i] = new Tile(BLANK, 0, 0);
       }
     }
   }
 }
 
 public void addNumbers(){
-  //word numbering
-  int wordCount = 0;
+  //word numbering -- really ugly but it works
+  int downTotal = 0;
+  int acrossTotal = 0;
+  int across = 0;
+  int down = 0;
+  boolean aflag = false;
+  boolean dflag = false;
   //make word numberings if either to right/bottom of edge or BLANK
   for(int i = 0; i < this.size; i++){
     for(int j = 0; j< this.size; j++){
       if(board[i][j] == null){
         if(i == 0 || board[i -1][j].letter == BLANK) {
-          //down case
-          IntPair pair = new IntPair(i, j);
-          wordCount++;
-          board[i][j] = new Tile(SPACE, i, j, wordCount, 0);
-          this.numbers.add(pair);
+        //top is end or black square
+        IntPair d = new IntPair(i,j);
+        downTotal++;
+        //save down coord
+        this.downWords.add(d);
+        dflag = true;//
         }
-        else if(j == 0 || board[i][j-1].letter == BLANK){
-          //across case
-        IntPair pair = new IntPair(i, j);
-          wordCount++;
-          board[i][j] = new Tile(SPACE, i, j, 0, wordCount);
-          this.numbers.add(pair);
+        if(j == 0 || board[i][j-1].letter == BLANK){
+        //left is end or black square
+          IntPair a = new IntPair(i,j);
+          acrossTotal++;
+          //save across coord
+          this.acrossWords.add(a);
+          aflag = true;
         }
-        else{
-          //open space
-          board[i][j] = new Tile(SPACE, i, j, 0, 0);
+        if(aflag) {
+        	across = acrossTotal;//begin new across
         }
+        else {
+        	across = board[i][j-1].across;
+        }
+        if(dflag) {
+        	down = downTotal;//begin new down
+        }
+        else {
+        	down = board[i-1][j].down;
+        }
+        board[i][j] = new Tile(SPACE, down, across);
       }
+      aflag = false;
+      dflag = false;
     }
   }
-  this.numberOfWords = wordCount;
 }
 
-public void addWord(String[] words, int run, String word){
-  words[run-1] = word;
-}
-
-public void putWord(String word, int run) {
+public void putAcross(String word, int run) {
+	IntPair coord = this.acrossWords.get(run-1);
+	int i = coord.x;
+	int j = coord.y;
 	for (int index = 0; index < word.length(); index++){
-	    char c = word.charAt(index);        
-	    int i = this.numbers.get(run-1).x;
-	    int j = this.numbers.get(run-1).y;
-	    this.board[i+index][j].put(c);
+	    char c = word.charAt(index);
+	    board[i][j].put(c);
+	    j++;
 	}
 }
 
@@ -104,19 +120,12 @@ public void putWord(String word, int run) {
 // print board
   public void showBoard(){
     for(int i = 0; i < this.size; i++){
+      System.out.print("|");
       for(int j = 0; j < this.size; j++){
-    	Tile t = board[i][j];
-        if(t.across > 0 && (t.letter != BLANK || t.letter != SPACE)){
-          System.out.format("%-2dA", t.across);
-        }
-        else if(t.down > 0 && (t.letter != BLANK || t.letter != SPACE)){
-          System.out.format("%-2dD", t.down);
-        }
-        else{
-          System.out.format("%-3c", t.letter);
-        }
+    	  Tile t = board[i][j];
+          System.out.format("%-2d%-2d%c|",t.down,t.across, t.letter);
       }
-      System.out.println("");
+      System.out.print("\n");
     }
   }
 
@@ -132,7 +141,7 @@ class Test{
     List<String> dict = CSVReader.CSVList("./csv/words_alpha.csv");
     Xboard test = new Xboard(BOARDSIZE);
     test.init();
-    test.putWord("Kevin", 1);
+    test.putAcross("Kevin", 1);
     test.showBoard();
   }
 }
