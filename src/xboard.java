@@ -109,6 +109,8 @@ public void putAcross(String word, int run) {
 	WordRun coord = this.acrossWords.get(run-1);
 	int i = coord.i;
 	int j = coord.j;
+	if(coord.len < word.length())
+		return;
 	for (int index = 0; index < word.length(); index++){
 	    char c = word.charAt(index);
 	    board[i][j].put(c);
@@ -138,7 +140,8 @@ public void putDown(String word, int run) {
       System.out.print("|");
       for(int j = 0; j < this.size; j++){
     	  Tile t = board[i][j];
-          System.out.format("%-2d%-2d%c|",t.down,t.across, t.letter);
+          //System.out.format("%-2d%-2d%c|",t.down,t.across, t.letter);
+    	  System.out.format("%c|", t.letter);
       }
       System.out.print("\n");
     }
@@ -157,7 +160,7 @@ class Test{
     System.out.println("Down Left Character");
     Xboard test = new Xboard(BOARDSIZE);
     test.init();
-    //test.putAcross("Kevin", 1);
+    test.putAcross("KEVIN", 5);
     test.showBoard();
   }
 }
