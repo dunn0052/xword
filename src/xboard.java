@@ -100,15 +100,27 @@ public void addNumbers(){
   }
 }
 
+
+// down and across get run coord, split word and place char
 public void putAcross(String word, int run) {
 	IntPair coord = this.acrossWords.get(run-1);
-	int i = coord.x;
-	int j = coord.y;
+	int i = coord.i;
+	int j = coord.j;
 	for (int index = 0; index < word.length(); index++){
 	    char c = word.charAt(index);
 	    board[i][j].put(c);
 	    j++;
 	}
+}
+public void putDown(String word, int run) {
+	IntPair coord = this.downWords.get(run-1);
+	int i = coord.i;
+	int j = coord.j;
+	for (int index = 0; index < word.length(); index++){
+		char c = word.charAt(index);
+		board[i][j].put(c);
+		i++;
+		}
 }
 
 // test set up
