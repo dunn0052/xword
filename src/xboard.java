@@ -22,8 +22,8 @@ class Xboard{
   private int size;
   private int numberOfWords = 0;
   private Random generator;
-  private List<IntPair> downWords = new ArrayList<IntPair>();
-  private List<IntPair> acrossWords = new ArrayList<IntPair>();
+  private List<WordRun> downWords = new ArrayList<WordRun>();
+  private List<WordRun> acrossWords = new ArrayList<WordRun>();
 
 
 // board constructor
@@ -66,7 +66,7 @@ public void addNumbers(){
       if(board[i][j] == null){
         if(i == 0 || board[i -1][j].letter == BLANK) {
         //top is end or black square
-        IntPair d = new IntPair(i,j);
+        WordRun d = new WordRun(i,j);
         downTotal++;
         //save down coord
         this.downWords.add(d);
@@ -74,7 +74,7 @@ public void addNumbers(){
         }
         if(j == 0 || board[i][j-1].letter == BLANK){
         //left is end or black square
-          IntPair a = new IntPair(i,j);
+          WordRun a = new WordRun(i,j);
           acrossTotal++;
           //save across coord
           this.acrossWords.add(a);
@@ -103,7 +103,7 @@ public void addNumbers(){
 
 // down and across get run coord, split word and place char
 public void putAcross(String word, int run) {
-	IntPair coord = this.acrossWords.get(run-1);
+	WordRun coord = this.acrossWords.get(run-1);
 	int i = coord.i;
 	int j = coord.j;
 	for (int index = 0; index < word.length(); index++){
@@ -113,7 +113,7 @@ public void putAcross(String word, int run) {
 	}
 }
 public void putDown(String word, int run) {
-	IntPair coord = this.downWords.get(run-1);
+	WordRun coord = this.downWords.get(run-1);
 	int i = coord.i;
 	int j = coord.j;
 	for (int index = 0; index < word.length(); index++){
