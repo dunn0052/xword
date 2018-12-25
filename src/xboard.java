@@ -93,6 +93,9 @@ public void addNumbers(){
         	down = board[i-1][j].down;
         }
         board[i][j] = new Tile(SPACE, down, across);
+        //running length total
+        this.acrossWords.get(across-1).len++;
+        this.downWords.get(down-1).len++;
       }
       aflag = false;
       dflag = false;
@@ -150,10 +153,11 @@ class Test{
 	private static final int BOARDSIZE = 15;
   public static void main(String[] args){
 	  //from https://raw.githubusercontent.com/eneko/data-repository/master/data/words.txt
-    List<String> dict = CSVReader.CSVList("./csv/words_alpha.csv");
+    //List<String> dict = CSVReader.CSVList("./csv/words_alpha.csv");
+    System.out.println("Down Left Character");
     Xboard test = new Xboard(BOARDSIZE);
     test.init();
-    test.putAcross("Kevin", 1);
+    //test.putAcross("Kevin", 1);
     test.showBoard();
   }
 }
