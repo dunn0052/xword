@@ -11,13 +11,13 @@ class Xboard{
   //dictionaries
   public List<String> dict;
   private String WA = "./csv/words_alpha.csv";
-  private String DW = "./csv/dict_words.csv";
+  private String DW = "./csv/dictionary.csv";
   private String CC = "./csv/corncob_caps.csv";
   private String WD = "./csv/words.csv";
   //percent of board blanks
   private static final int BLANKPERCENT = 16; //as guidline on wikipedia
   // Default values
-  private static final char BLANK = 'X';
+  private static final char BLANK = '\u25A0';
   private static final char SPACE = '_';
   private static final int MAXWORDS = 78;
   private static final int MINWORDLEN = 3;
@@ -47,7 +47,7 @@ public void addBlanks(){
   for(int i = 0; i < this.size; i++){
     for(int j = 0; j+i< this.size; j++){
       chance = Math.abs(this.generator.nextInt()%100);
-      if(chance < BLANKPERCENT){
+      if(chance <= BLANKPERCENT){
         // diagonalize blank spaces
         board[i][j+i] = new Tile(BLANK, 0, 0);
         board[j+i][i] = new Tile(BLANK, 0, 0);
@@ -185,7 +185,7 @@ public String findWord(int num, char run) {
     addBlanks();
     addNumbers();
     //from https://raw.githubusercontent.com/eneko/data-repository/master/data/words.txt
-    this.dict = CSVReader.CSVList(this.WD);
+    this.dict = CSVReader.CSVList(this.DW);
   }
 
 // print board
