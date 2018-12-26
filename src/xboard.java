@@ -1,21 +1,21 @@
 //imports
-import java.awt.Graphics;
-import java.io.File;
 import java.util.Random;
 import java.lang.Math;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.*;
-import java.util.Scanner;
 import java.lang.StringBuilder;
 
 class Xboard{
 	
+  //dictionaries
   public List<String> dict;
   private String WA = "./csv/words_alpha.csv";
   private String DW = "./csv/dict_words.csv";
+  private String CC = "./csv/corncob_caps.csv";
+  private String WD = "./csv/words.csv";
   //percent of board blanks
-  private static final int BLANKPERCENT = 15;
+  private static final int BLANKPERCENT = 16; //as guidline on wikipedia
   // Default values
   private static final char BLANK = 'X';
   private static final char SPACE = '_';
@@ -25,7 +25,6 @@ class Xboard{
   //board vars
   private Tile[][] board;
   private int size;
-  private int numberOfWords = 0;
   private Random generator;
   public List<WordRun> downWords = new ArrayList<WordRun>();
   public List<WordRun> acrossWords = new ArrayList<WordRun>();
@@ -141,9 +140,9 @@ public String findWord(int num, char run) {
 	if(run == 'd') {
 		r = this.downWords.get(num-1);
 		for(int i = 0; i < r.len; i++) {
-			Tile t = board[r.i+1][r.j];
+			Tile t = board[r.i+i][r.j];
 			if(t.letter == SPACE) {
-				s.append("\\w");
+				s.append(".");
 			}
 			else {
 				s.append(t.letter);
@@ -155,7 +154,7 @@ public String findWord(int num, char run) {
 		for(int i = 0; i < r.len; i++) {
 			Tile t = board[r.i][r.j+i];
 			if(t.letter == SPACE) {
-				s.append("\\w");
+				s.append(".");
 			}
 			else {
 				s.append(t.letter);
@@ -186,7 +185,7 @@ public String findWord(int num, char run) {
     addBlanks();
     addNumbers();
     //from https://raw.githubusercontent.com/eneko/data-repository/master/data/words.txt
-    this.dict = CSVReader.CSVList(this.DW);
+    this.dict = CSVReader.CSVList(this.WD);
   }
 
 // print board
@@ -214,21 +213,20 @@ class Test{
     System.out.println("Down Left Character");
     Xboard test = new Xboard(BOARDSIZE);
     test.init();
-    Scanner reader = new Scanner(System.in);
-    String input;
-    String random;
-    char turn = 'a';
-    for(int i = 1; i < test.acrossWords.size();i++) {
+    String randoma;
+    String randomb;
+    int wordmax = Math.max(test.acrossWords.size(), test.downWords.size());
+    for(int i = 1; i <= wordmax;i++) {
     	test.showBoard();
-    	random = test.findWord(i, turn);
-    	if(turn == 'd') {
-    		test.putDown(random, i);
-    		turn = 'a';
+    	if(i <= test.downWords.size()) {
+    		randoma = test.findWord(i, 'd');
+    		test.putDown(randoma, i);
     	}
-    	else {
-    		test.putAcross(random, i);
-    		turn = 'd';
+    	if(i <= test.acrossWords.size()) {
+    		randomb = test.findWord(i, 'a');
+    		test.putAcross(randomb, i);
     	}
+    	
     }
   }
 }
