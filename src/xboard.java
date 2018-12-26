@@ -6,9 +6,14 @@ import java.lang.Math;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.*;
-
+import java.util.Scanner;
+import java.lang.StringBuilder;
 
 class Xboard{
+	
+  public List<String> dict;
+  private String WA = "./csv/words_alpha.csv";
+  private String DW = "./csv/dict_words.csv";
   //percent of board blanks
   private static final int BLANKPERCENT = 15;
   // Default values
@@ -22,8 +27,8 @@ class Xboard{
   private int size;
   private int numberOfWords = 0;
   private Random generator;
-  private List<WordRun> downWords = new ArrayList<WordRun>();
-  private List<WordRun> acrossWords = new ArrayList<WordRun>();
+  public List<WordRun> downWords = new ArrayList<WordRun>();
+  public List<WordRun> acrossWords = new ArrayList<WordRun>();
 
 
 // board constructor
@@ -109,8 +114,10 @@ public void putAcross(String word, int run) {
 	WordRun coord = this.acrossWords.get(run-1);
 	int i = coord.i;
 	int j = coord.j;
-	if(coord.len < word.length())
+	if(coord.len != word.length()) {
+		System.out.format("%s won't fit in %d space(s)\n", word, coord.len);
 		return;
+	}
 	for (int index = 0; index < word.length(); index++){
 	    char c = word.charAt(index);
 	    board[i][j].put(c);
@@ -128,10 +135,58 @@ public void putDown(String word, int run) {
 		}
 }
 
+public String findWord(int num, char run) {
+	WordRun r;
+	StringBuilder s = new StringBuilder("");
+	if(run == 'd') {
+		r = this.downWords.get(num-1);
+		for(int i = 0; i < r.len; i++) {
+			Tile t = board[r.i+1][r.j];
+			if(t.letter == SPACE) {
+				s.append("\\w");
+			}
+			else {
+				s.append(t.letter);
+			}
+		}
+	}
+	else {
+		r = this.acrossWords.get(num-1);
+		for(int i = 0; i < r.len; i++) {
+			Tile t = board[r.i][r.j+i];
+			if(t.letter == SPACE) {
+				s.append("\\w");
+			}
+			else {
+				s.append(t.letter);
+			}
+		}
+	}
+
+	//set up regex pattern
+	System.out.println(s);
+	Pattern p = Pattern.compile(s.toString());
+	Matcher m;
+	List<String> l = new ArrayList<String>();
+	for(String word : this.dict) {
+		m = p.matcher(word);
+		if(m.matches())
+			//System.out.println(m.group());
+			l.add(m.group());
+	}
+	if(l.size() > 0) {
+    String e = l.get(generator.nextInt(l.size()));
+    return e;
+	}
+	return "";
+}
+
 // test set up
   public void init(){
     addBlanks();
     addNumbers();
+    //from https://raw.githubusercontent.com/eneko/data-repository/master/data/words.txt
+    this.dict = CSVReader.CSVList(this.DW);
   }
 
 // print board
@@ -155,12 +210,25 @@ public void putDown(String word, int run) {
 class Test{
 	private static final int BOARDSIZE = 15;
   public static void main(String[] args){
-	  //from https://raw.githubusercontent.com/eneko/data-repository/master/data/words.txt
-    //List<String> dict = CSVReader.CSVList("./csv/words_alpha.csv");
+
     System.out.println("Down Left Character");
     Xboard test = new Xboard(BOARDSIZE);
     test.init();
-    test.putAcross("KEVIN", 5);
-    test.showBoard();
+    Scanner reader = new Scanner(System.in);
+    String input;
+    String random;
+    char turn = 'a';
+    for(int i = 1; i < test.acrossWords.size();i++) {
+    	test.showBoard();
+    	random = test.findWord(i, turn);
+    	if(turn == 'd') {
+    		test.putDown(random, i);
+    		turn = 'a';
+    	}
+    	else {
+    		test.putAcross(random, i);
+    		turn = 'd';
+    	}
+    }
   }
 }
