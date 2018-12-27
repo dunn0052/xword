@@ -8,6 +8,9 @@ import java.lang.StringBuilder;
 
 class Xboard{
 	
+  //flags
+  public boolean SYMMETRIC = true;
+	
   //dictionaries
   public List<String> dict;
   private String WA = "./csv/words_alpha.csv";
@@ -15,7 +18,7 @@ class Xboard{
   private String CC = "./csv/corncob_caps.csv";
   private String WD = "./csv/words.csv";
   //percent of board blocks
-  private static final int BLOCKPERCENT = 8; //as guidline on wikipedia /2 as it's symmetric
+  private static final int BLOCKPERCENT = 9; //as guidline on wikipedia /2 as it's symmetric
   // Default values
   private static final char BLOCK = '\u25A0';
   private static final char SPACE = '_';
@@ -24,7 +27,7 @@ class Xboard{
   private static final int MAXWORDLEN = 15;   // should be size
   //board vars
   private Tile[][] board;
-  private int size;
+  private int size; //dimension
   private Random generator;
   public List<WordRun> downWords = new ArrayList<WordRun>();
   public List<WordRun> acrossWords = new ArrayList<WordRun>();
@@ -56,8 +59,14 @@ public void addBlocks(){
 }
 
 public void addBlock(int i, int j ) {
-	addLetter(i, j, BLOCK);
-	addLetter(j, i, BLOCK);
+	// symmetric
+	if(SYMMETRIC) {
+		addLetter(i, j, BLOCK);
+		addLetter(j, i, BLOCK);
+	}
+	else {
+		addLetter(i,j, BLOCK);
+	}
 }
 
 public void addSpaces() {
@@ -94,7 +103,7 @@ public void addNumbers(){
   //make word numberings if either to right/bottom of edge or BLOCK
   for(int i = 0; i < this.size; i++){
     for(int j = 0; j< this.size; j++){
-      if(board[i][j] == null){
+    	if(board[i][j].letter != BLOCK) {
         if(i == 0 || board[i -1][j].letter == BLOCK) {
         //top is end or black square
         WordRun d = new WordRun(i,j);
@@ -123,13 +132,14 @@ public void addNumbers(){
         else {
         	down = board[i-1][j].down;
         }
-        board[i][j] = new Tile(SPACE, down, across);
+        board[i][j].down = down;
+        board[i][j].across = across;
         //running length total
         this.acrossWords.get(across-1).len++;
         this.downWords.get(down-1).len++;
-      }
-      aflag = false;
-      dflag = false;
+        aflag = false;
+        dflag = false;
+    	}
     }
   }
 }
@@ -210,6 +220,7 @@ public String findWord(int num, char run) {
   public void init(){
 	addSpaces();
     addBlocks();
+    addNumbers();
     //from https://raw.githubusercontent.com/eneko/data-repository/master/data/words.txt
     this.dict = CSVReader.CSVList(this.DW);
   }
@@ -221,7 +232,7 @@ public String findWord(int num, char run) {
       for(int j = 0; j < this.size; j++){
     	  Tile t = board[i][j];
           //System.out.format("%-2d%-2d%c|",t.down,t.across, t.letter);
-    	  System.out.format("%c|", t.letter);
+    	  System.out.format("%c|", board[i][j].letter);
       }
       System.out.print("\n");
     }
@@ -256,6 +267,7 @@ class Test{
     System.out.println("Down Left Character");
     Xboard test = new Xboard(BOARDSIZE);
     test.init();
+    test.randomFill();
     test.showBoard();
   }
 }
