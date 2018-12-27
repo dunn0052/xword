@@ -98,54 +98,47 @@ public void addNumbers(){
   int acrossTotal = 0;
   int across = 0;
   int down = 0;
-  boolean aflag = false;
-  boolean dflag = false;
   //make word numberings if either to right/bottom of edge or BLOCK
   for(int i = 0; i < this.size; i++){
     for(int j = 0; j< this.size; j++){
+    	//check if new down
     	if(board[i][j].letter != BLOCK) {
         if(i == 0 || board[i -1][j].letter == BLOCK) {
-        //top is end or black square
-        WordRun d = new WordRun(i,j);
-        downTotal++;
-        //save down coord
-        this.downWords.add(d);
-        dflag = true;//
+        	//top is end or black square
+        	WordRun d = new WordRun(i,j);
+        	downTotal++;
+        	//save down coord
+        	this.downWords.add(d);
+        	down = downTotal;//begin new down
         }
+        else {
+        	down = board[i-1][j].down;
+        }
+        
+        //check if new across
         if(j == 0 || board[i][j-1].letter == BLOCK){
         //left is end or black square
           WordRun a = new WordRun(i,j);
           acrossTotal++;
           //save across coord
           this.acrossWords.add(a);
-          aflag = true;
-        }
-        if(aflag) {
-        	across = acrossTotal;//begin new across
+          across = acrossTotal;//begin new across
         }
         else {
         	across = board[i][j-1].across;
         }
-        if(dflag) {
-        	down = downTotal;//begin new down
-        }
-        else {
-        	down = board[i-1][j].down;
-        }
+        
         board[i][j].down = down;
         board[i][j].across = across;
         //running length total
         this.acrossWords.get(across-1).len++;
         this.downWords.get(down-1).len++;
-        aflag = false;
-        dflag = false;
     	}
     }
   }
 }
 
 
-// down and across get run coord, split word and place char
 public void putAcross(String word, int run) {
 	WordRun coord = this.acrossWords.get(run-1);
 	int i = coord.i;
@@ -160,10 +153,15 @@ public void putAcross(String word, int run) {
 	    j++;
 	}
 }
+
 public void putDown(String word, int run) {
 	WordRun coord = this.downWords.get(run-1);
 	int i = coord.i;
 	int j = coord.j;
+	if(coord.len != word.length()) {
+	System.out.format("%s won't fit in %d space(s)\n", word, coord.len);
+		return;
+	}
 	for (int index = 0; index < word.length(); index++){
 		char c = word.charAt(index);
 		addLetter(i, j, c);
