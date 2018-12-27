@@ -34,23 +34,23 @@ class Xboard{
 
 
 // board constructor
-  public Xboard(int size){
+  public Xboard(int size) {
     this.size = size;
     this.board = new Tile[size][size];
   }
 
 
-public void addBlocks(){
+public void addBlocks() {
   //random block generator
   this.generator = new Random();
   //container for block chance
   int chance = 0;
 
   //make blocks
-  for(int i = 0; i < this.size; i++){
-    for(int j = 0; j < this.size; j++){
+  for(int i = 0; i < this.size; i++) {
+    for(int j = 0; j < this.size; j++) {
       chance = Math.abs(this.generator.nextInt()%100);
-      if(chance <= BLOCKPERCENT){
+      if(chance <= BLOCKPERCENT) {
         // diagonalize block spaces
     	  addBlock(i, j);
       }
@@ -92,15 +92,15 @@ public void addLetter(int i, int j, char letter) {
 	}
 }
 
-public void addNumbers(){
+public void addNumbers() {
   //word numbering -- really ugly but it works
   int downTotal = 0;
   int acrossTotal = 0;
   int across = 0;
   int down = 0;
   //make word numberings if either to right/bottom of edge or BLOCK
-  for(int i = 0; i < this.size; i++){
-    for(int j = 0; j< this.size; j++){
+  for(int i = 0; i < this.size; i++) {
+    for(int j = 0; j< this.size; j++) {
     	//check if new down
     	if(board[i][j].letter != BLOCK) {
         if(i == 0 || board[i -1][j].letter == BLOCK) {
@@ -116,7 +116,7 @@ public void addNumbers(){
         }
         
         //check if new across
-        if(j == 0 || board[i][j-1].letter == BLOCK){
+        if(j == 0 || board[i][j-1].letter == BLOCK) {
         //left is end or black square
           WordRun a = new WordRun(i,j);
           acrossTotal++;
@@ -147,7 +147,7 @@ public void putAcross(String word, int run) {
 		System.out.format("%s won't fit in %d space(s)\n", word, coord.len);
 		return;
 	}
-	for (int index = 0; index < word.length(); index++){
+	for (int index = 0; index < word.length(); index++) {
 	    char c = word.charAt(index);
 	    addLetter(i, j, c);
 	    j++;
@@ -162,7 +162,7 @@ public void putDown(String word, int run) {
 	System.out.format("%s won't fit in %d space(s)\n", word, coord.len);
 		return;
 	}
-	for (int index = 0; index < word.length(); index++){
+	for (int index = 0; index < word.length(); index++) {
 		char c = word.charAt(index);
 		addLetter(i, j, c);
 		i++;
@@ -215,7 +215,7 @@ public String findWord(int num, char run) {
 }
 
 // test set up
-  public void init(){
+  public void init() {
 	addSpaces();
     addBlocks();
     addNumbers();
@@ -224,10 +224,10 @@ public String findWord(int num, char run) {
   }
 
 // print board
-  public void showBoard(){
-    for(int i = 0; i < this.size; i++){
+  public void showBoard() {
+    for(int i = 0; i < this.size; i++) {
       System.out.print("|");
-      for(int j = 0; j < this.size; j++){
+      for(int j = 0; j < this.size; j++) {
     	  Tile t = board[i][j];
           //System.out.format("%-2d%-2d%c|",t.down,t.across, t.letter);
     	  System.out.format("%c|", board[i][j].letter);
@@ -260,9 +260,8 @@ public void randomFill() {
 
 class Test{
 	private static final int BOARDSIZE = 15;
-  public static void main(String[] args){
-
-    System.out.println("Down Left Character");
+	public static void main(String[] args) {
+		
     Xboard test = new Xboard(BOARDSIZE);
     test.init();
     test.randomFill();
