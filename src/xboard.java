@@ -14,10 +14,10 @@ class Xboard{
   private String DW = "./csv/dictionary.csv";
   private String CC = "./csv/corncob_caps.csv";
   private String WD = "./csv/words.csv";
-  //percent of board blanks
-  private static final int BLANKPERCENT = 16; //as guidline on wikipedia
+  //percent of board blocks
+  private static final int BLOCKPERCENT = 8; //as guidline on wikipedia /2 as it's symmetric
   // Default values
-  private static final char BLANK = '\u25A0';
+  private static final char BLOCK = '\u25A0';
   private static final char SPACE = '_';
   private static final int MAXWORDS = 78;
   private static final int MINWORDLEN = 3;
@@ -37,23 +37,50 @@ class Xboard{
   }
 
 
-public void addBlanks(){
-  //random blank generator
+public void addBlocks(){
+  //random block generator
   this.generator = new Random();
-  //container for blank chance
+  //container for block chance
   int chance = 0;
 
-  //make blanks
+  //make blocks
   for(int i = 0; i < this.size; i++){
-    for(int j = 0; j+i< this.size; j++){
+    for(int j = 0; j < this.size; j++){
       chance = Math.abs(this.generator.nextInt()%100);
-      if(chance <= BLANKPERCENT){
-        // diagonalize blank spaces
-        board[i][j+i] = new Tile(BLANK, 0, 0);
-        board[j+i][i] = new Tile(BLANK, 0, 0);
+      if(chance <= BLOCKPERCENT){
+        // diagonalize block spaces
+    	  addBlock(i, j);
       }
     }
   }
+}
+
+public void addBlock(int i, int j ) {
+	addLetter(i, j, BLOCK);
+	addLetter(j, i, BLOCK);
+}
+
+public void addSpaces() {
+	for(int i = 0; i < this.size; i++) {
+		for(int j = 0; j < this.size; j++) {
+			addLetter(i, j, SPACE);
+		}
+	}
+}
+
+public void addLetter(int i, int j, char letter) {
+	try {
+		if(board[i][j] != null) {
+		this.board[i][j].letter = letter;
+		}
+		else {
+			board[i][j] = new Tile(letter, 0, 0);
+		}
+	}
+	catch(ArrayIndexOutOfBoundsException l) {
+		System.out.println("Error :" + l);
+		System.out.println("Error adding " + letter);
+	}
 }
 
 public void addNumbers(){
@@ -64,11 +91,11 @@ public void addNumbers(){
   int down = 0;
   boolean aflag = false;
   boolean dflag = false;
-  //make word numberings if either to right/bottom of edge or BLANK
+  //make word numberings if either to right/bottom of edge or BLOCK
   for(int i = 0; i < this.size; i++){
     for(int j = 0; j< this.size; j++){
       if(board[i][j] == null){
-        if(i == 0 || board[i -1][j].letter == BLANK) {
+        if(i == 0 || board[i -1][j].letter == BLOCK) {
         //top is end or black square
         WordRun d = new WordRun(i,j);
         downTotal++;
@@ -76,7 +103,7 @@ public void addNumbers(){
         this.downWords.add(d);
         dflag = true;//
         }
-        if(j == 0 || board[i][j-1].letter == BLANK){
+        if(j == 0 || board[i][j-1].letter == BLOCK){
         //left is end or black square
           WordRun a = new WordRun(i,j);
           acrossTotal++;
@@ -119,7 +146,7 @@ public void putAcross(String word, int run) {
 	}
 	for (int index = 0; index < word.length(); index++){
 	    char c = word.charAt(index);
-	    board[i][j].put(c);
+	    addLetter(i, j, c);
 	    j++;
 	}
 }
@@ -129,7 +156,7 @@ public void putDown(String word, int run) {
 	int j = coord.j;
 	for (int index = 0; index < word.length(); index++){
 		char c = word.charAt(index);
-		board[i][j].put(c);
+		addLetter(i, j, c);
 		i++;
 		}
 }
@@ -170,7 +197,6 @@ public String findWord(int num, char run) {
 	for(String word : this.dict) {
 		m = p.matcher(word);
 		if(m.matches())
-			//System.out.println(m.group());
 			l.add(m.group());
 	}
 	if(l.size() > 0) {
@@ -182,8 +208,8 @@ public String findWord(int num, char run) {
 
 // test set up
   public void init(){
-    addBlanks();
-    addNumbers();
+	addSpaces();
+    addBlocks();
     //from https://raw.githubusercontent.com/eneko/data-repository/master/data/words.txt
     this.dict = CSVReader.CSVList(this.DW);
   }
@@ -202,9 +228,26 @@ public String findWord(int num, char run) {
   }
 
 
-
+// autofill rest of the board
+public void randomFill() {
+    String randoma;
+    String randomb;
+    int wordmax = Math.max(this.acrossWords.size(), this.downWords.size());
+    for(int i = 1; i <= wordmax;i++) {
+    	this.showBoard();
+    	if(i <= this.downWords.size()) {
+    		randoma = this.findWord(i, 'd');
+    		this.putDown(randoma, i);
+    	}
+    	if(i <= this.acrossWords.size()) {
+    		randomb = this.findWord(i, 'a');
+    		this.putAcross(randomb, i);
+    	}
+    	
+    }
 }
 
+}
 
 class Test{
 	private static final int BOARDSIZE = 15;
@@ -213,20 +256,6 @@ class Test{
     System.out.println("Down Left Character");
     Xboard test = new Xboard(BOARDSIZE);
     test.init();
-    String randoma;
-    String randomb;
-    int wordmax = Math.max(test.acrossWords.size(), test.downWords.size());
-    for(int i = 1; i <= wordmax;i++) {
-    	test.showBoard();
-    	if(i <= test.downWords.size()) {
-    		randoma = test.findWord(i, 'd');
-    		test.putDown(randoma, i);
-    	}
-    	if(i <= test.acrossWords.size()) {
-    		randomb = test.findWord(i, 'a');
-    		test.putAcross(randomb, i);
-    	}
-    	
-    }
+    test.showBoard();
   }
 }
