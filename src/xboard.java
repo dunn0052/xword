@@ -13,10 +13,10 @@ class Xboard{
 	
   //dictionaries
   public List<String> dict;
-  private String WA = "./csv/words_alpha.csv";
-  private String DW = "./csv/dictionary.csv";
-  private String CC = "./csv/corncob_caps.csv";
-  private String WD = "./csv/words.csv";
+  private String WA = "../csv/words_alpha.csv";
+  private String DW = "../csv/dictionary.csv";
+  private String CC = "../csv/corncob_caps.csv";
+  private String WD = "../csv/words.csv";
   //percent of board blocks
   private static final int BLOCKPERCENT = 9; //as guidline on wikipedia /2 as it's symmetric
   // Default values
@@ -258,13 +258,3 @@ public void randomFill() {
 
 }
 
-class Test{
-	private static final int BOARDSIZE = 15;
-	public static void main(String[] args) {
-		
-    Xboard test = new Xboard(BOARDSIZE);
-    test.init();
-    test.randomFill();
-    test.showBoard();
-  }
-}
