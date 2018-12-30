@@ -28,14 +28,18 @@ class Xboard{
   //board vars
   private Tile[][] board;
   private int size; //dimension
+  private int time;
   private Random generator;
   public List<WordRun> downWords = new ArrayList<WordRun>();
   public List<WordRun> acrossWords = new ArrayList<WordRun>();
 
 
 // board constructor
-  public Xboard(int size) {
+  public Xboard(int size, boolean symmetric, String dictionary, int time) {
     this.size = size;
+    this.SYMMETRIC = symmetric;
+    this.DW = dictionary;
+    this.time = time;
     this.board = new Tile[size][size];
   }
 
@@ -213,6 +217,8 @@ public String findWord(int num, char run) {
 	}
 	return "";
 }
+
+//timing section
 
 // test set up
   public void init() {
