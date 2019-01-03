@@ -52,9 +52,9 @@ public void addBlocks() {
   int chance = 0;
 
   //make blocks
-  for(int i = 0; i < this.size; i++) {
-    for(int j = 0; j < this.size; j++) {
-	 for(int k = 0; k < this.size; k++) {
+  for(int k = 0; k < this.size; k++) {
+    for(int i = 0; i < this.size; i++) {
+	 for(int j = 0; j< this.size; j++) {
       chance = Math.abs(this.generator.nextInt()%100);
       if(chance <= BLOCKPERCENT) {
         // diagonalize block spaces
@@ -71,6 +71,7 @@ public void addBlock(int i, int j , int k) {
 		addLetter(i, j, k, BLOCK);
 		addLetter(j, i, k, BLOCK);
 		addLetter(i, k, j, BLOCK);
+		addLetter(j, k, i, BLOCK);
 	}
 	else {
 		addLetter(i, j, k, BLOCK);
@@ -174,7 +175,7 @@ public void putAcross(String word, int run) {
 	int j = coord.j;
 	int k = coord.k;
 	if(coord.len != word.length()) {
-		System.out.format("%s won't fit in %d space(s)\n", word, coord.len);
+	//System.out.format("%s won't fit %d across in %d space(s)\n", word, run, coord.len);
 		return;
 	}
 	for (int index = 0; index < word.length(); index++) {
@@ -190,7 +191,7 @@ public void putDown(String word, int run) {
 	int j = coord.j;
 	int k = coord.k;
 	if(coord.len != word.length()) {
-	System.out.format("%s won't fit in %d space(s)\n", word, coord.len);
+	//System.out.format("%s won't fit %d down in %d space(s)\n", word, run, coord.len);
 		return;
 	}
 	for (int index = 0; index < word.length(); index++) {
@@ -206,7 +207,7 @@ public void putDeep(String word, int run) {
 	int j = coord.j;
 	int k = coord.k;
 	if(coord.len != word.length()) {
-	System.out.format("%s won't fit in %d space(s)\n", word, coord.len);
+	//System.out.format("%s won't fit %d deep in %d space(s)\n", word, run, coord.len);
 		return;
 	}
 	for (int index = 0; index < word.length(); index++) {
@@ -243,6 +244,18 @@ public String findWord(int num, char run) {
 			}
 		}
 	}
+	else if(run =='p') {
+		r = this.deepWords.get(num-1);
+		for(int i = 0; i < r.len; i++) {
+			Tile t = board[r.i][r.j][r.k+i];
+			if(t.letter == SPACE) {
+				s.append(".");
+			}
+			else {
+				s.append(t.letter);
+			}
+		}
+	}	
 
 	//set up regex pattern
 	System.out.println(s);
@@ -266,7 +279,7 @@ public String findWord(int num, char run) {
 // test set up
   public void init() {
 	addSpaces();
-    //addBlocks();
+    addBlocks();
     addNumbers();
     //from https://raw.githubusercontent.com/eneko/data-repository/master/data/words.txt
     this.dict = CSVReader.CSVList(this.DW);
@@ -274,25 +287,42 @@ public String findWord(int num, char run) {
 
 // print board
   public void showBoard(int k) {
+	StringBuilder s = new StringBuilder("");
     for(int i = 0; i < this.size; i++) {
-      System.out.print("|");
+      s.append("|");
       for(int j = 0; j < this.size; j++) {
     	  Tile t = board[i][j][k];
-          System.out.format("%-2d%-2d%-2d%c|",t.down,t.across, t.deep, t.letter);
-    	  //System.out.format("%c|", board[i][j][k].letter);
+          //System.out.format("%-2d%-2d%-2d%c|",t.down,t.across, t.deep, t.letter);
+    	  s.append(board[i][j][k].letter + "|");
       }
-      System.out.print("\n");
+      s.append("\n");
     }
+    System.out.println(s);
   }
+  
+  public void showSide(int j) {
+	StringBuilder s = new StringBuilder("");
+    for(int i = 0; i < this.size; i++) {
+      s.append("|");
+      for(int k = 0; k < this.size; k++) {
+    	  Tile t = board[i][j][k];
+          //System.out.format("%-2d%-2d%-2d%c|",t.down,t.across, t.deep, t.letter);
+    	  s.append(board[i][j][k].letter + "|");
+      }
+      s.append("\n");
+    }
+    System.out.println(s);
+  }  
 
 
 // autofill rest of the board
 public void randomFill() {
     String randoma;
     String randomb;
-    int wordmax = Math.max(this.acrossWords.size(), this.downWords.size());
+    String randomc;
+    int wordmax = Math.max(Math.max(this.acrossWords.size(), this.downWords.size()) , this.downWords.size()); //why max only take two args??!! amateur hour
+    System.out.println("Max word list is " + wordmax);
     for(int i = 1; i <= wordmax;i++) {
-    	this.showBoard(0); //first deep
     	if(i <= this.downWords.size()) {
     		randoma = this.findWord(i, 'd');
     		this.putDown(randoma, i);
@@ -301,7 +331,10 @@ public void randomFill() {
     		randomb = this.findWord(i, 'a');
     		this.putAcross(randomb, i);
     	}
-    	
+    	if(i <= this.downWords.size()) {
+    		randomc = this.findWord(i, 'p');
+    		this.putDeep(randomc, i);
+    	}
     }
 }
 

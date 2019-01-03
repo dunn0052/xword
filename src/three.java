@@ -15,16 +15,19 @@ public class three{
     	Xboar3d test = new Xboar3d(BOARDSIZE, symmetric, DW, time);
     	test.init();
     long startTime = System.nanoTime();
-   	 //test.randomFill();
+   	 test.randomFill();
    	 for(int k = 0; k < test.size; k++){
    	 test.showBoard(k);
+   	 test.showSide(k);
    	 System.out.println("");
+   	 
    	 try {
    	 TimeUnit.SECONDS.sleep(1);
 	}
 	catch(InterruptedException ex) {
 		}
 	}
+	
 	long endTime = (System.nanoTime() - startTime)/1000000000;
 	System.out.println(endTime);
   }
