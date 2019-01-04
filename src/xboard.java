@@ -258,7 +258,7 @@ public String findWord(int num, char run) {
 	}	
 
 	//set up regex pattern
-	System.out.println(s);
+	//System.out.println(s);
 	Pattern p = Pattern.compile(s.toString());
 	Matcher m;
 	List<String> l = new ArrayList<String>();
@@ -287,6 +287,7 @@ public String findWord(int num, char run) {
 
 // print board
   public void showBoard(int k) {
+	System.out.println("Front: " + k);
 	StringBuilder s = new StringBuilder("");
     for(int i = 0; i < this.size; i++) {
       s.append("|");
@@ -301,6 +302,7 @@ public String findWord(int num, char run) {
   }
   
   public void showSide(int j) {
+	System.out.println("Side: " +j);
 	StringBuilder s = new StringBuilder("");
     for(int i = 0; i < this.size; i++) {
       s.append("|");
@@ -323,15 +325,15 @@ public void randomFill() {
     int wordmax = Math.max(Math.max(this.acrossWords.size(), this.downWords.size()) , this.downWords.size()); //why max only take two args??!! amateur hour
     System.out.println("Max word list is " + wordmax);
     for(int i = 1; i <= wordmax;i++) {
-    	if(i <= this.downWords.size()) {
+    	if(i < this.downWords.size()) {
     		randoma = this.findWord(i, 'd');
     		this.putDown(randoma, i);
     	}
-    	if(i <= this.acrossWords.size()) {
+    	if(i < this.acrossWords.size()) {
     		randomb = this.findWord(i, 'a');
     		this.putAcross(randomb, i);
     	}
-    	if(i <= this.downWords.size()) {
+    	if(i < this.deepWords.size()) {
     		randomc = this.findWord(i, 'p');
     		this.putDeep(randomc, i);
     	}
